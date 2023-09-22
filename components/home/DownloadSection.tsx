@@ -1,14 +1,16 @@
 import { useLocale } from "@/context/LocaleContent";
+import { useDebounce } from "@/hooks/useDebounce";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 interface IGetDetailsFormat {
   iframe: string;
 }
 const DownloadSection = () => {
   const { t } = useLocale();
   const [url, setUrl] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const router = useRouter();
   const getDetails = async () => {
     if (url.length == 0) {
@@ -16,6 +18,14 @@ const DownloadSection = () => {
     }
     const link = url.trim();
     const response = await axios.post("/api/view", { link });
+
+    console.log(response.data);
+  };
+
+  const debouncedTerm = useDebounce(searchTerm);
+  const search = async () => {
+    if (searchTerm.length == 0) return;
+    const response = await axios.get(`/api/search?keyword=${searchTerm}`);
     console.log(response.data);
   };
   const download = async () => {
@@ -24,6 +34,9 @@ const DownloadSection = () => {
     );
   };
 
+  useEffect(() => {
+    search();
+  }, [debouncedTerm]);
   return (
     <section className="w-[90%] lg:w-[60%] rounded-[10px] shadow-lg py-[30px] flex flex-col items-center bg-white h-full gap-[15px] text-midnight-blue">
       <h1 className="text-[14px] lg:text-[25px] font-ariel ">
@@ -31,7 +44,8 @@ const DownloadSection = () => {
           "Youtube Downloader - Youtube Converter"}
       </h1>
       <p className="text-center  text-[12px] lg:text-[14px]">
-        {t("CONVERT_DOWNLOAD_FORMATS")}
+        {t("CONVERT_DOWNLOAD_FORMATS") ||
+          "Download and Convert Youtube Videos in MP3, MP4, MKV, 3GP, & many more formats."}
       </p>
       <div
         className="flex border-midnight-blue border-[5px] font-normal rounded-[5px] w-[90%] lg:w-[70%] justify-center h-[60px]"
@@ -43,8 +57,8 @@ const DownloadSection = () => {
             "SEARCH_PASTE_LINK" || "Search or paste video link here"
           )}
           className="w-full h-full outline-none px-[5px] bg-grey-base-200"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
         <button
           className="w-[25%] h-full font-ariel gap-[5px] flex items-center justify-center text-white lg:text-[15px] bg-midnight-blue"
