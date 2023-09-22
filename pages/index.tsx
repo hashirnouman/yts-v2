@@ -2,6 +2,8 @@ import DownloadSection from "@/components/home/DownloadSection";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useLocale } from "@/context/LocaleContent";
+import axios from "axios";
+import { useEffect } from "react";
 
 export default function Home() {
   const { t } = useLocale();
@@ -81,7 +83,8 @@ export default function Home() {
                 {t("UNLIMITED_DOWNLOAD") || "Unlimited Downloads"}
               </p>
               <p className="text-center text-15px ">
-                {t('UNLIMITED_DOWNLOAD_CONVERSION') ||'Unlimited Downloads & Conversions Registration is not required'}
+                {t("UNLIMITED_DOWNLOAD_CONVERSION") ||
+                  "Unlimited Downloads & Conversions Registration is not required"}
               </p>
             </div>
 
