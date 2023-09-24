@@ -22,7 +22,7 @@ export default async function handler(
 
     const sizes = metaInfo.formats.map((item) => {
       if (item.hasVideo) {
-        let size: any =
+        let size: number =
           ((item.bitrate as number) *
             ((item.approxDurationMs as unknown as number) / 1000)) /
           8;

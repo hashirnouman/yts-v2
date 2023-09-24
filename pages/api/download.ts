@@ -1,6 +1,4 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-
 import ytdl from "ytdl-core";
 
 export default async function handler(
@@ -37,16 +35,20 @@ export default async function handler(
         `attachment; filename="${info.videoDetails.title}.mp4"`
       );
 
-      ytdl(link, { format: (format as any).format_id }).pipe(res);
+      ytdl(link, { format: (selectedFormat as any).format_id }).pipe(res);
     } else if (format === "mp3") {
-      const audioFormats = ytdl.filterFormats(info.formats, "audioonly");
+      try {
+        const info = await ytdl.getInfo(link);
+        const formats = ytdl.filterFormats(info.formats, "audio");
 
-      res.setHeader(
-        "Content-Disposition",
-        `attachment; filename="${info.videoDetails.title}.mp3"`
-      );
-
-      ytdl(link, { format: (format as any).format_id }).pipe(res);
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="${info.videoDetails.title}.mp3"`
+        );
+        ytdl(link, { format: (formats as any).format_id }).pipe(res);
+      } catch (err: any) {
+        res.status(500).send(err.message);
+      }
     } else {
       throw new Error("Unsupported format.");
     }
