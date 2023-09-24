@@ -9,7 +9,7 @@ import {
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { BiLoader } from "react-icons/bi";
 import { BsVolumeMuteFill } from "react-icons/bs";
 const DownloadSection = () => {
@@ -18,11 +18,11 @@ const DownloadSection = () => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const [data, setData] = useState<IVideoDetailsResponse>();
-  const [audioEnabled, setAudioEnabled] = useState<ILabels[]>();
+  const [formats, setFormats] = useState<ILabels[]>();
   const [option, showOptions] = useState(false);
   const ref = useOutsideClick(() => showOptions(false));
   const [label, setLabel] = useState<ILabels>();
-  const [format, setFormat] = useState("mp4");
+  const [sizes, setSizes] = useState<string[]>([]);
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.length == 0) {
@@ -31,9 +31,11 @@ const DownloadSection = () => {
     setLoading(true);
     const link = searchTerm.trim();
     videoDetails(link).then((response) => {
-      setAudioEnabled(response?.labels);
+      console.log(response?.sizes);
+      setFormats(response?.labels);
       setLabel(response?.labels[0]);
       setData(response);
+      setSizes(response?.sizes || []);
       setLoading(false);
     });
   };
@@ -44,18 +46,20 @@ const DownloadSection = () => {
     const response = await axios.get(`/api/search?keyword=${searchTerm}`);
     console.log(response.data);
   };
-  const download = async () => {
+  const download = async (format: string) => {
     const link = searchTerm.trim();
     if (format == "mp3") {
       router.push(
-        `http://localhost:3000/api/download?link=${searchTerm}&format=mp3&quality=highest`
+        `http://localhost:3000/api/download?link=${link}&format=mp3&quality=highest`
       );
     } else
       router.push(
         `http://localhost:3000/api/download?link=${searchTerm}&format=${format}&quality=${label?.qualityLabel}`
       );
   };
-
+  useEffect(() => {
+    console.log(sizes);
+  }, []);
   return (
     <div className="w-full flex flex-col items-center gap-[10px]">
       <section className="w-[90%] lg:w-[60%] rounded-[10px] shadow-lg py-[30px] flex flex-col items-center bg-white h-full gap-[15px] text-midnight-blue">
@@ -127,8 +131,8 @@ const DownloadSection = () => {
                         className="rounded bg-midnight-blue  max-h-[140px] overflow-y-auto"
                         ref={ref}
                       >
-                        {audioEnabled &&
-                          audioEnabled
+                        {formats &&
+                          formats
                             .sort((a, b) => {
                               if (a.hasAudio === b.hasAudio) {
                                 return 0;
@@ -139,18 +143,21 @@ const DownloadSection = () => {
                               }
                             })
                             ?.map((video, index) => (
-                              <div
-                                className="  h-[30px] hover:bg-white   text-white hover:text-midnight-blue cursor-pointer flex items-center gap-[20px] "
-                                key={index}
-                                onClick={() => setLabel(video)}
-                              >
-                                {video.qualityLabel}
-                                {!video.hasAudio && (
-                                  <>
-                                    <BsVolumeMuteFill />
-                                  </>
-                                )}
-                              </div>
+                              <>
+                                <div
+                                  className="  h-[30px] hover:bg-white   text-white hover:text-midnight-blue cursor-pointer flex items-center gap-[20px] "
+                                  key={index}
+                                  onClick={() => setLabel(video)}
+                                >
+                                  {video.qualityLabel}
+                                  {sizes[0]}
+                                  {!video.hasAudio && (
+                                    <>
+                                      <BsVolumeMuteFill />
+                                    </>
+                                  )}
+                                </div>
+                              </>
                             ))}
                       </div>
                     )}
@@ -159,8 +166,7 @@ const DownloadSection = () => {
                 <button
                   className="w-[120px] bg-white text-black rounded"
                   onClick={() => {
-                    setFormat("mp3");
-                    download();
+                    download("mp3");
                   }}
                 >
                   download in mp3

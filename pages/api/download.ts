@@ -39,11 +39,6 @@ export default async function handler(
     } else if (format === "mp3") {
       try {
         const info = await ytdl.getInfo(link);
-        // const formats = ytdl.filterFormats(info.formats, "audio");
-        const audioStream = ytdl.downloadFromInfo(info, {
-          filter: "audioonly",
-          quality: "highestaudio",
-        });
         res.setHeader(
           "Content-Disposition",
           `attachment; filename="${info.videoDetails.title}.mp3"`
