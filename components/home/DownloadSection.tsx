@@ -70,11 +70,11 @@ const DownloadSection = () => {
     const link = searchTerm.trim();
     if (format == "mp3") {
       router.push(
-        `http://localhost:3000/api/download?link=${link}&format=mp3&quality=highest`
+        `https://yts-v2.vercel.app/api/download?link=${link}&format=mp3&quality=highest`
       );
     } else
       router.push(
-        `http://localhost:3000/api/download?link=${searchTerm}&format=${format}&quality=${label?.qualityLabel}`
+        `https://yts-v2.vercel.app/api/download?link=${searchTerm}&format=${format}&quality=${label?.qualityLabel}`
       );
   };
   // useEffect(() => {
