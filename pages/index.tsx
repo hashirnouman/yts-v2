@@ -4,11 +4,13 @@ import Footer from "@/components/layout/Footer";
 import { useLocale } from "@/context/LocaleContent";
 import axios from "axios";
 import { useEffect } from "react";
+import Head from "next/head";
 
 export default function Home() {
   const { t } = useLocale();
   return (
     <>
+      <Head>Yts1</Head>
       <Navbar />
       <main className="flex flex-col item-center">
         <div className="mt-[50px] flex justify-center ">
