@@ -39,7 +39,7 @@ export default async function handler(
       size: sizes.filter((size) => size != null),
     });
   } catch (error) {
-    console.error(error);
+    res.json({ error: error });
     res.status(500).json({ error: "Could not get response" });
   }
 }

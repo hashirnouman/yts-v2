@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import Youtube from "youtube-search";
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse

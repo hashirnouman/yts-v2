@@ -3,7 +3,9 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { useOutsideClick } from "@/hooks/useOutsideClick";
 import {
   ILabels,
+  IResult,
   IVideoDetailsResponse,
+  searchData,
   videoDetails,
 } from "@/services/viewDetails";
 import axios from "axios";
@@ -17,34 +19,52 @@ const DownloadSection = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const [data, setData] = useState<IVideoDetailsResponse>();
+  const [data, setData] = useState<IVideoDetailsResponse | null>();
   const [formats, setFormats] = useState<ILabels[]>();
   const [option, showOptions] = useState(false);
   const ref = useOutsideClick(() => showOptions(false));
   const [label, setLabel] = useState<ILabels>();
   const [sizes, setSizes] = useState<string[]>([]);
+  const [searchResponse, setSearchResponse] = useState<IResult[]>([]);
+  const [isError, setError] = useState(false);
+  const getVideoDetails = (link: string) => {
+    videoDetails(link).then((response) => {
+      if (response?.data.error) {
+        setLoading(false);
+        setError(true);
+        setData(null);
+        return;
+      }
+
+      setFormats(response?.data?.labels);
+      setLabel(response?.data?.labels[0]);
+      setData(response?.data);
+      setSizes(response?.data?.sizes || []);
+      setError(false);
+      setLoading(false);
+    });
+  };
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (searchTerm.length == 0) {
       return;
     }
     setLoading(true);
+    setError(false);
     const link = searchTerm.trim();
-    videoDetails(link).then((response) => {
-      console.log(response?.sizes);
-      setFormats(response?.labels);
-      setLabel(response?.labels[0]);
-      setData(response);
-      setSizes(response?.sizes || []);
-      setLoading(false);
-    });
+    getVideoDetails(link);
   };
 
   const debouncedTerm = useDebounce(searchTerm);
   const search = async () => {
-    if (searchTerm.length == 0) return;
-    const response = await axios.get(`/api/search?keyword=${searchTerm}`);
-    console.log(response.data);
+    if (searchTerm.length == 0) {
+      setSearchResponse([]);
+      return;
+    }
+    setData(null);
+    searchData(searchTerm).then((data) => {
+      setSearchResponse(data?.results || []);
+    });
   };
   const download = async (format: string) => {
     const link = searchTerm.trim();
@@ -57,9 +77,9 @@ const DownloadSection = () => {
         `http://localhost:3000/api/download?link=${searchTerm}&format=${format}&quality=${label?.qualityLabel}`
       );
   };
-  useEffect(() => {
-    console.log(sizes);
-  }, []);
+  // useEffect(() => {
+  //   search();
+  // }, [debouncedTerm]);
   return (
     <div className="w-full flex flex-col items-center gap-[10px]">
       <section className="w-[90%] lg:w-[60%] rounded-[10px] shadow-lg py-[30px] flex flex-col items-center bg-white h-full gap-[15px] text-midnight-blue">
@@ -109,6 +129,9 @@ const DownloadSection = () => {
           </Link>
         </p>
       </section>
+      {isError && (
+        <p className="text-vivid-red text-[12px]">Video unavailable</p>
+      )}
       {!loading ? (
         <>
           {data && (
@@ -150,12 +173,10 @@ const DownloadSection = () => {
                                   onClick={() => setLabel(video)}
                                 >
                                   {video.qualityLabel}
-                                  {sizes[0]}
-                                  {!video.hasAudio && (
-                                    <>
-                                      <BsVolumeMuteFill />
-                                    </>
-                                  )}
+
+                                  {!video.hasAudio ? (
+                                    <BsVolumeMuteFill />
+                                  ) : null}
                                 </div>
                               </>
                             ))}
@@ -172,6 +193,31 @@ const DownloadSection = () => {
                   download in mp3
                 </button>
               </div>
+            </div>
+          )}
+          {searchResponse && (
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-[20px] ">
+              {searchResponse.map((data, index) => (
+                <div
+                  key={index}
+                  className="w-[200px] h-[180px] rounded flex flex-col items-center bg-white px-[5px]"
+                >
+                  <div className="w-full h-[130px] rounded">
+                    <img
+                      src={data.thumbnails.high.url}
+                      alt="thumbnail"
+                      className="w-full h-full object-cover rounded"
+                    />
+                  </div>
+                  <div className="w-[90px] truncate">{data.title}</div>
+                  <button
+                    className="bg-vivid-red w-[90px] rounded text-white h-[20px]"
+                    onClick={() => getVideoDetails(data.link)}
+                  >
+                    Download
+                  </button>
+                </div>
+              ))}
             </div>
           )}
         </>
