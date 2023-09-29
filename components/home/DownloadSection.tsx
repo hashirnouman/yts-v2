@@ -187,6 +187,14 @@ const DownloadSection = () => {
                 <button
                   className="w-[120px] bg-white text-black rounded"
                   onClick={() => {
+                    download("mp4");
+                  }}
+                >
+                  download 
+                </button>
+                <button
+                  className="w-[120px] bg-white text-black rounded"
+                  onClick={() => {
                     download("mp3");
                   }}
                 >

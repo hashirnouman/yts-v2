@@ -20,11 +20,11 @@ export default async function handler(
       const formats = ytdl.filterFormats(info.formats, "audioandvideo");
       let selectedFormat;
 
-      if (quality === "highest") {
-        selectedFormat = formats[0];
-      } else {
-        selectedFormat = formats.find((f) => f.qualityLabel === quality);
-      }
+      // if (quality === "highest") {
+      //   selectedFormat = formats[0];
+      // } else {
+      // }
+      selectedFormat = formats.find((f) => f.qualityLabel === quality);
 
       if (!selectedFormat) {
         throw new Error(`No format with quality label "${quality}" found.`);
