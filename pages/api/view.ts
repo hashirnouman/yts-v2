@@ -32,7 +32,7 @@ export default async function handler(
     res.status(200).json({
       iframe: resp.videoDetails.embed.iframeUrl,
       labels: metaInfo.formats.filter((item) => {
-        if (item.hasVideo) {
+        if (item.hasVideo && item.hasAudio) {
           return item.qualityLabel;
         }
       }),

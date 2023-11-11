@@ -69,12 +69,10 @@ const DownloadSection = () => {
   const download = async (format: string) => {
     const link = searchTerm.trim();
     if (format == "mp3") {
-      router.push(
-        `https://yts-v2.vercel.app/api/download?link=${link}&format=mp3&quality=highest`
-      );
+      router.push(`/api/download?link=${link}&format=mp3&quality=highest`);
     } else
       router.push(
-        `https://yts-v2.vercel.app/api/download?link=${searchTerm}&format=${format}&quality=${label?.qualityLabel}`
+        `/api/download?link=${searchTerm}&format=${format}&quality=${label?.qualityLabel}`
       );
   };
   // useEffect(() => {
@@ -143,7 +141,7 @@ const DownloadSection = () => {
                 <div className="flex w-[120px]  flex-col gap-[10px]">
                   <div className="outline-none w-full h-[30px] relative">
                     <div
-                      className="bg-white rounded cursor-pointer flex px-[5px] gap-[20px] items-center"
+                      className="bg-vivid-red rounded cursor-pointer flex w-[140px] text-white  justify-center gap-[20px] items-center"
                       onClick={() => showOptions(!option)}
                     >
                       {label?.qualityLabel}
@@ -185,15 +183,17 @@ const DownloadSection = () => {
                   </div>
                 </div>
                 <button
-                  className="w-[120px] bg-white text-black rounded"
+                  className="w-[140px] h-[30px] bg-vivid-red capitalize text-white rounded mt-[10px]"
                   onClick={() => {
                     download("mp4");
                   }}
                 >
-                  download 
+                  download
                 </button>
+                <br />
+
                 <button
-                  className="w-[120px] bg-white text-black rounded"
+                  className="w-[140px] h-[30px] bg-vivid-red capitalize text-white rounded mt-[10px]"
                   onClick={() => {
                     download("mp3");
                   }}
