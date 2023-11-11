@@ -18,6 +18,7 @@ const DownloadSection = () => {
   const { t } = useLocale();
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(false);
+  const [link, setLink] = useState("");
   const router = useRouter();
   const [data, setData] = useState<IVideoDetailsResponse | null>();
   const [formats, setFormats] = useState<ILabels[]>();
@@ -28,6 +29,7 @@ const DownloadSection = () => {
   const [searchResponse, setSearchResponse] = useState<IResult[]>([]);
   const [isError, setError] = useState(false);
   const getVideoDetails = (link: string) => {
+    setLoading(true);
     videoDetails(link).then((response) => {
       if (response?.data.error) {
         setLoading(false);
@@ -35,9 +37,9 @@ const DownloadSection = () => {
         setData(null);
         return;
       }
-
       setFormats(response?.data?.labels);
       setLabel(response?.data?.labels[0]);
+      setLink(link);
       setData(response?.data);
       setSizes(response?.data?.sizes || []);
       setError(false);
@@ -45,39 +47,50 @@ const DownloadSection = () => {
     });
   };
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    setSearchResponse([])
     e.preventDefault();
-    if (searchTerm.length == 0) {
+    if (searchTerm.trim().length == 0) {
       return;
     }
     setLoading(true);
     setError(false);
-    const link = searchTerm.trim();
-    getVideoDetails(link);
+    getVideoDetails(searchTerm.trim());
   };
 
   const debouncedTerm = useDebounce(searchTerm);
   const search = async () => {
-    if (searchTerm.length == 0) {
+    setLoading(true);
+    if (searchTerm.match("https://youtu.be")) {
+      setLoading(false);
+      return;
+    }
+    if (searchTerm.trim().length === 0) {
       setSearchResponse([]);
+      setData(null);
+      setLoading(false);
       return;
     }
     setData(null);
     searchData(searchTerm).then((data) => {
-      setSearchResponse(data?.results || []);
+      console.log(data);
+      setSearchResponse(data || []);
+      setLoading(false);
     });
   };
+
   const download = async (format: string) => {
-    const link = searchTerm.trim();
     if (format == "mp3") {
       router.push(`/api/download?link=${link}&format=mp3&quality=highest`);
     } else
       router.push(
-        `/api/download?link=${searchTerm}&format=${format}&quality=${label?.qualityLabel}`
+        `/api/download?link=${link}&format=${format}&quality=${label?.qualityLabel}`
       );
   };
-  // useEffect(() => {
-  //   search();
-  // }, [debouncedTerm]);
+
+  useEffect(() => {
+    search();
+  }, [debouncedTerm]);
+
   return (
     <div className="w-full flex flex-col items-center gap-[10px]">
       <section className="w-[90%] lg:w-[60%] rounded-[10px] shadow-lg py-[30px] flex flex-col items-center bg-white h-full gap-[15px] text-midnight-blue">
@@ -203,35 +216,35 @@ const DownloadSection = () => {
               </div>
             </div>
           )}
-          {searchResponse && (
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-[20px] ">
-              {searchResponse.map((data, index) => (
-                <div
-                  key={index}
-                  className="w-[200px] h-[180px] rounded flex flex-col items-center bg-white px-[5px]"
-                >
-                  <div className="w-full h-[130px] rounded">
-                    <img
-                      src={data.thumbnails.high.url}
-                      alt="thumbnail"
-                      className="w-full h-full object-cover rounded"
-                    />
-                  </div>
-                  <div className="w-[90px] truncate">{data.title}</div>
-                  <button
-                    className="bg-vivid-red w-[90px] rounded text-white h-[20px]"
-                    onClick={() => getVideoDetails(data.link)}
-                  >
-                    Download
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
         </>
       ) : (
         <div className="animate-spin">
           <BiLoader size={40} className="text-vivid-red" />
+        </div>
+      )}
+      {searchResponse && (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-[20px] ">
+          {searchResponse.map((data, index) => (
+            <div
+              key={index}
+              className="w-[200px] h-[180px] rounded flex flex-col items-center bg-white px-[5px]"
+            >
+              <div className="w-full h-[130px] rounded">
+                <img
+                  src={data.thumbnails.high.url}
+                  alt="thumbnail"
+                  className="w-full h-full object-cover rounded"
+                />
+              </div>
+              <div className="w-[90px] truncate">{data.title}</div>
+              <button
+                className="bg-vivid-red w-[90px] rounded text-white h-[20px]"
+                onClick={() => getVideoDetails(data.link)}
+              >
+                Download
+              </button>
+            </div>
+          ))}
         </div>
       )}
     </div>

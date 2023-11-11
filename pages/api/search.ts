@@ -6,18 +6,17 @@ export default async function handler(
 ) {
   const opts = {
     maxResults: 10,
-    key: process.env.YOUTUBE_API_KEY,
+    key: "AIzaSyDL6YwYPRDJWie5RnV-KaqNGuLvpg2Si_4",
   };
 
   try {
-    Youtube(
-      req.query.keyword as string,
-      opts,
-      function (err: any, results: any) {
-        if (err) return console.log(err);
-        res.status(200).json({ results });
-      }
-    );
+    Youtube(req.query.keyword as string, opts, function (err, results) {
+      if (err) return console.log(err);
+
+      res
+        .status(200)
+        .json(results?.filter((result) => result.kind != "youtube#channel"));
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "An error occurred" });

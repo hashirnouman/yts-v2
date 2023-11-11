@@ -36,7 +36,7 @@ export interface IResult {
 }
 export const searchData = async (searchTerm: string) => {
   try {
-    const response = await axios.get<ISearchResponse>(
+    const response = await axios.get<any>(
       `/api/search?keyword=${searchTerm}`
     );
     console.log(response);

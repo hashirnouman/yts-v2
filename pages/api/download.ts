@@ -55,8 +55,6 @@ export default async function handler(
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ error: `Could not process the request: ${error}` });
+    res.status(500).json({ error: `Could not process the request: ${error}` });
   }
 }
