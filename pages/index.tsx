@@ -10,10 +10,12 @@ export default function Home() {
   const { t } = useLocale();
   return (
     <>
-      <Head>Yts1</Head>
+      <Head>
+        <title>Yts1</title>
+      </Head>
       <Navbar />
       <main className="flex flex-col item-center">
-        <div className="mt-[50px] flex justify-center ">
+        <div className="mt-[50px] flex justify-center">
           <DownloadSection />
         </div>
         <section className="text-center text-midnight-blue font-ariel mt-[50px]">
