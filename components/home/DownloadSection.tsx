@@ -47,7 +47,7 @@ const DownloadSection = () => {
     });
   };
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    setSearchResponse([])
+    setSearchResponse([]);
     e.preventDefault();
     if (searchTerm.trim().length == 0) {
       return;
@@ -80,10 +80,12 @@ const DownloadSection = () => {
 
   const download = async (format: string) => {
     if (format == "mp3") {
-      router.push(`/api/download?link=${link}&format=mp3&quality=highest`);
+      router.push(
+        `localhost:5000/download?link=${link}&format=mp3&quality=highest`
+      );
     } else
       router.push(
-        `/api/download?link=${link}&format=${format}&quality=${label?.qualityLabel}`
+        `localhost:5000/download?link=${link}&format=${format}&quality=${label?.qualityLabel}`
       );
   };
 
